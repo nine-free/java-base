@@ -1,4 +1,4 @@
-package cn.soft1010.base;
+package top.soft1010.java.knowledge.point;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;

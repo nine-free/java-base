@@ -1,4 +1,4 @@
-package cn.soft1010.base.list;
+package top.soft1010.java.knowledge.point.list;
 
 import java.util.ArrayList;
 import java.util.Arrays;

@@ -1,4 +1,4 @@
-package cn.soft1010.base.generic;
+package top.soft1010.java.knowledge.point.generic;
 
 /**
  * @author bjzhangjifu

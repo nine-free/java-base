@@ -1,4 +1,4 @@
-package cn.soft1010.base.jdk8;
+package top.soft1010.java.knowledge.point.jdk8;
 
 /**
  * @author bjzhangjifu

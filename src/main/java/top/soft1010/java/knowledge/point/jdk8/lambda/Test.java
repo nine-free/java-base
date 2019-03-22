@@ -1,4 +1,4 @@
-package cn.soft1010.base.jdk8.lambda;
+package top.soft1010.java.knowledge.point.jdk8.lambda;
 
 import java.util.ArrayList;
 import java.util.List;
