@@ -10,14 +10,38 @@ public class SubClass extends SupperClass {
     private final int finalInt = 1;
     private final Integer finalInteger = 11;
 
+    public SubClass() {
+    }
+
+    public SubClass(Integer id, String subName) {
+        this.id = id;
+        this.subName = subName;
+    }
+
+    public SubClass(Integer id, String name, Integer id1, String subName) {
+        super(id, name);
+        this.id = id1;
+        this.subName = subName;
+    }
+
     private Integer id;
     private String subName;
 
-    public void publicMethod(String name, Integer id) throws NullPointerException, ClassCastException {
-        System.out.println("===name:" + name + "  id:" + id + "===");
+    public void publicMethod(String... args) throws NullPointerException, ClassCastException {
+        StringBuffer stringBuffer = new StringBuffer("===");
+        for (Object obj : args
+                ) {
+            stringBuffer.append(obj.toString()).append("===");
+        }
+        privateMethod(stringBuffer.toString());
     }
-    private void privateMethod(String name, Integer id) throws NullPointerException, ClassCastException {
-        System.out.println("===name:" + name + "  id:" + id + "===");
+
+    private void privateMethod(String str) {
+        System.out.println("===name:" + getName() + "  id:" + getId() + "===" + (str == null ? "" : str));
+    }
+
+    private void privateMethod() throws NullPointerException, ClassCastException {
+        privateMethod("");
     }
 
     public String getFinalString() {

@@ -10,6 +10,14 @@ public class SupperClass extends Object {
     private String name;
     public static final String super_default_value = "123456";
 
+    public SupperClass() {
+    }
+
+    public SupperClass(Integer id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
     public Integer getId() {
         return id;
     }

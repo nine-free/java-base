@@ -14,31 +14,56 @@ import java.util.Stack;
  */
 public class ReflectUtils {
 
-    /**
-     * getFields 获取所有public的成员变量 包含本类和从子类继承来的
-     *
-     * @param cls
-     */
-    public static void parseFileds(Class cls) {
-        //获取所有public的成员变量 包含本类和从子类继承来的
-        Field[] fields1 = cls.getFields();
-        for (Field field : fields1) {
-            System.out.print(Modifier.toString(field.getModifiers()) + " "
-                    + field.getType().getName() + field.getName());
-            System.out.println("");
+    public static void parseConstructors(Class cls, boolean declared) {
+        Constructor[] constructors;
+        if (declared) {
+            constructors = cls.getDeclaredConstructors();
+        } else {
+            constructors = cls.getConstructors();
+        }
+        for (Constructor constructor : constructors) {
+            StringBuffer stringBuffer = new StringBuffer();
+            stringBuffer.append(Modifier.toString(constructor.getModifiers())).append(" ")
+                    .append(constructor.getName()).append("(");
+            //参数
+            Parameter[] parameters = constructor.getParameters();
+            if (parameters != null && parameters.length > 0) {
+                for (Parameter parameter : parameters) {
+                    stringBuffer.append(parameter.getType().getName()).append(" ").append(parameter.getName()).append(",");
+                }
+                stringBuffer.delete(stringBuffer.length() - 1, stringBuffer.length());
+            }
+            stringBuffer.append(")");
+            //异常信息
+            Class[] exceptionClss = constructor.getExceptionTypes();
+            if (exceptionClss != null && exceptionClss.length > 0) {
+                stringBuffer.append(" throws ");
+                StringBuffer exceptionSb = new StringBuffer();
+                for (Class exceptionCls : exceptionClss) {
+                    exceptionSb.append(exceptionCls.getName()).append(",");
+                }
+                stringBuffer.append(exceptionSb.substring(0, exceptionSb.length() - 1));
+            }
+            System.out.println(stringBuffer.toString());
         }
     }
 
     /**
+     * getFields 获取所有public的成员变量 包含本类和从子类继承来的
      * getDeclaredFields 获取本类所有变量，所有权限
      *
      * @param cls
      */
-    public static void parseDeclaredFileds(Class cls) {
-        //获取本类所有变量，所有权限
-        Field[] fields2 = cls.getDeclaredFields();
-
-        for (Field field : fields2) {
+    public static void parseFileds(Class cls, boolean declared) {
+        Field[] fields;
+        if (declared) {
+            //获取本类所有变量，所有权限
+            fields = cls.getDeclaredFields();
+        } else {
+            //获取所有public的成员变量 包含本类和从子类继承来的
+            fields = cls.getFields();
+        }
+        for (Field field : fields) {
             System.out.print(Modifier.toString(field.getModifiers()) + " "
                     + field.getType().getName() + field.getName());
             System.out.println("");
@@ -50,11 +75,15 @@ public class ReflectUtils {
      *
      * @param cls
      */
-    public static void parseMethods(Class cls) {
-        //获取自己及父类public的方法
-//        Method[] methods = subCls.getMethods();
-        //获取本类所有权限的方法
-        Method[] methods = cls.getDeclaredMethods();
+    public static void parseMethods(Class cls, boolean declared) {
+        Method[] methods = null;
+        if (!declared) {
+            //获取自己及父类public的方法
+            methods = cls.getMethods();
+        } else {
+            //获取本类所有权限的方法
+            methods = cls.getDeclaredMethods();
+        }
         for (Method method : methods) {
             //获取方法的入参信息
             Parameter[] parameters = method.getParameters();
@@ -86,29 +115,24 @@ public class ReflectUtils {
 
     /**
      * getClasses 得到该类及其父类所有的public的内部类
+     * getDeclaredClasses 得到该类所有的内部类，除去父类的
      *
      * @param cls
      */
-    public static void parseInnerClass(Class cls) {
-        //getClasses 得到该类及其父类所有的public的内部类。
-        Class[] classes = cls.getClasses();
+    public static void parseInnerClass(Class cls, boolean declared) {
+        Class[] classes;
+        if (declared) {
+            //getDeclaredClasses 得到该类所有的内部类，除去父类的
+            classes = cls.getDeclaredClasses();
+        } else {
+            //getClasses 得到该类及其父类所有的public的内部类。
+            classes = cls.getClasses();
+        }
         for (Class clz : classes) {
             System.out.println(clz.getName());
         }
     }
 
-    /**
-     * getDeclaredClasses 得到该类所有的内部类，除去父类的
-     *
-     * @param cls
-     */
-    public static void parseInnerDeclaredClass(Class cls) {
-        //getDeclaredClasses 得到该类所有的内部类，除去父类的
-        Class[] classes = cls.getDeclaredClasses();
-        for (Class clz : classes) {
-            System.out.println(clz.getName());
-        }
-    }
 
     /**
      * 修改私有变量
@@ -154,7 +178,7 @@ public class ReflectUtils {
         //通过get方法获取修改后私有常量的值
         System.out.println("反射后 getfinalInt():" + subClass.getFinalInt());
 
-        System.out.println("===华丽的分割线===");
+        System.out.println("=============");
         System.out.println("私有变量finalInteger 通过反射修改 11-->12");
         Field field1 = cls.getDeclaredField("finalInteger");
         //设置访问权限
@@ -182,18 +206,43 @@ public class ReflectUtils {
      */
     public static void invokePrivateMethod(Class cls) throws IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
         //获取指定方法
-        Method privateMethod = cls.getDeclaredMethod("privateMethod", String.class, Integer.class);
-        //对于private方法，需要设置访问权限
+        System.out.println("调用私有方法");
+        //方法名 + 所有的参数类型（无参则不写）可变参数使用数组 如：可变参数为String的可变参数，则这里String[].class
+        Method privateMethod = cls.getDeclaredMethod("privateMethod", String.class);
+        //对于private方法，需要设置访问权限 对于public方法，不需要设置访问权限
         privateMethod.setAccessible(true);
+        privateMethod.invoke(cls.newInstance(), "zhang");
+    }
 
-        privateMethod.invoke(cls.newInstance(), "zhang", 321);
-        System.out.println("调用公有方法");
-        //获取指定方法
-        Method publicMethod = cls.getDeclaredMethod("publicMethod", String.class, Integer.class);
+    /**
+     * @param obj
+     * @param methodName
+     * @param args
+     * @throws IllegalAccessException
+     * @throws InstantiationException
+     * @throws NoSuchMethodException
+     * @throws InvocationTargetException
+     */
+    public static void invokeMethod(Object obj, String methodName, String... args) throws IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
+        System.out.println("调用可变参数公有方法");
+        //获取指定方法 可变参数使用数组 如：可变参数为String的可变参数，则这里String[].class
+        Method publicMethod = obj.getClass().getDeclaredMethod(methodName, String[].class);
         //对于public方法，不需要设置访问权限
-//        publicMethod.setAccessible(true);
+        // publicMethod.setAccessible(true);
+        //注意
+        //error java.lang.IllegalArgumentException: wrong number of arguments
+        //publicMethod.invoke(obj, new Object[]{"111", "222"});
+        //done 这里的参数对于可变参数一定是new Object[]{可变参数} 可变参数作为一个整体
+        //数组是可协变的，new String[]{"111", "222"}协变为Object
+        //publicMethod.invoke(obj, new Object[]{new String[]{"111", "222"}});
+        publicMethod.invoke(obj, new Object[]{args});
+    }
 
-        publicMethod.invoke(cls.newInstance(), "zhang", 123456);
+    //数组可协变
+    private void test() {
+        Object o = new int[]{};
+        Object o1 = new Integer[]{};
+        Object[] o2 = new Integer[]{};
 
     }
 
