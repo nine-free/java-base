@@ -34,6 +34,11 @@ public class SubClass extends SupperClass {
             stringBuffer.append(obj.toString()).append("===");
         }
         privateMethod(stringBuffer.toString());
+//        try {
+//            Thread.sleep(100);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
     }
 
     private void privateMethod(String str) {
